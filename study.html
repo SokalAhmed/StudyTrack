@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Today's Topic</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    body {
+      background-color: #f4f5f7;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    /* Minimalist Card Container */
+    .card {
+      background: #ffffff;
+      width: 100%;
+      max-width: 400px;
+      padding: 36px 32px;
+      border-radius: 24px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+      transition: background-color 0.4s ease, border-color 0.4s ease;
+      border: 1px solid #e1e4e8;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #111111;
+      margin-bottom: 24px;
+      transition: color 0.3s ease;
+    }
+
+    ul {
+      list-style: none;
+    }
+
+    .task-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 18px;
+      gap: 14px;
+    }
+
+    /* Checkbox Style */
+    .custom-checkbox {
+      appearance: none;
+      width: 22px;
+      height: 22px;
+      border: 2px solid #a4a9bd;
+      border-radius: 6px;
+      cursor: pointer;
+      outline: none;
+      transition: all 0.2s ease;
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .custom-checkbox:checked {
+      background-color: #3b82f6;
+      border-color: #3b82f6;
+    }
+
+    .custom-checkbox:checked::after {
+      content: '✓';
+      position: absolute;
+      color: white;
+      font-size: 14px;
+      top: -2px;
+      left: 3px;
+      font-weight: bold;
+    }
+
+    /* Editable Notepad Text */
+    .task-input {
+      border: none;
+      outline: none;
+      background: transparent;
+      font-size: 1.1rem;
+      color: #1a1a1a;
+      width: 100%;
+    }
+
+    .task-item.completed .task-input {
+      text-decoration: line-through;
+      color: #71717a;
+    }
+
+    /* Delete Button */
+    .delete-btn {
+      background: none;
+      border: none;
+      color: #a1a1aa;
+      cursor: pointer;
+      font-size: 1rem;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+
+    .task-item:hover .delete-btn {
+      opacity: 1;
+    }
+
+    .add-container {
+      margin-top: 12px;
+    }
+
+    #newTaskInput {
+      width: 100%;
+      border: none;
+      outline: none;
+      background: transparent;
+      font-size: 1rem;
+      color: #71717a;
+      padding: 6px 0;
+    }
+
+    #newTaskInput::placeholder {
+      color: #a1a1aa;
+    }
+
+    /* All Completed State */
+    .card.all-completed {
+      background-color: #dcfce7;
+      border-color: #86efac;
+    }
+
+    .card.all-completed h1 {
+      color: #15803d;
+    }
+
+    .card.all-completed .custom-checkbox:checked {
+      background-color: #16a34a;
+      border-color: #16a34a;
+    }
+  </style>
+
+  <!-- Firebase Compatibility Libraries -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+</head>
+<body>
+
+  <div class="card" id="taskCard">
+    <h1 id="cardHeader">Today's Topic</h1>
+    
+    <ul id="taskList"></ul>
+
+    <div class="add-container">
+      <input type="text" id="newTaskInput" placeholder="+ Add new task..." />
+    </div>
+  </div>
+
+  <script>
+    // Initialize Firebase Realtime Database
+    const firebaseConfig = {
+      databaseURL: "https://todo-list-77a25-default-rtdb.firebaseio.com/"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const tasksRef = db.ref('tasks');
+
+    const taskCard = document.getElementById('taskCard');
+    const cardHeader = document.getElementById('cardHeader');
+    const taskList = document.getElementById('taskList');
+    const newTaskInput = document.getElementById('newTaskInput');
+
+    let tasks = [];
+
+    // Listen for real-time cloud changes across all devices
+    tasksRef.on('value', (snapshot) => {
+      const data = snapshot.val();
+      tasks = data ? Object.values(data) : [];
+      renderTasks();
+    });
+
+    function saveToCloud() {
+      tasksRef.set(tasks);
+    }
+
+    function renderTasks() {
+      taskList.innerHTML = '';
+
+      tasks.forEach((task, index) => {
+        const li = document.createElement('li');
+        li.className = `task-item ${task.completed ? 'completed' : ''}`;
+
+        li.innerHTML = `
+          <input 
+            type="checkbox" 
+            class="custom-checkbox" 
+            ${task.completed ? 'checked' : ''} 
+            onchange="toggleTask(${index})"
+          />
+          <input 
+            type="text" 
+            class="task-input" 
+            value="${task.text}" 
+            onchange="updateTaskText(${index}, this.value)"
+          />
+          <button class="delete-btn" onclick="deleteTask(${index})">✕</button>
+        `;
+
+        taskList.appendChild(li);
+      });
+
+      checkCompletionState();
+    }
+
+    function toggleTask(index) {
+      tasks[index].completed = !tasks[index].completed;
+      saveToCloud();
+    }
+
+    function updateTaskText(index, newText) {
+      tasks[index].text = newText;
+      saveToCloud();
+    }
+
+    function deleteTask(index) {
+      tasks.splice(index, 1);
+      saveToCloud();
+    }
+
+    newTaskInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter' && newTaskInput.value.trim() !== '') {
+        tasks.push({
+          id: Date.now(),
+          text: newTaskInput.value.trim(),
+          completed: false
+        });
+        newTaskInput.value = '';
+        saveToCloud();
+      }
+    });
+
+    function checkCompletionState() {
+      const allDone = tasks.length > 0 && tasks.every(t => t.completed);
+      
+      if (allDone) {
+        taskCard.classList.add('all-completed');
+        cardHeader.textContent = 'Good job';
+      } else {
+        taskCard.classList.remove('all-completed');
+        cardHeader.textContent = "Today's Topic";
+      }
+    }
+  </script>
+</body>
+</html>
