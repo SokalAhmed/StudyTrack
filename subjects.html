@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Subject Topics</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    body {
+      background-color: #f4f5f7;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 32px 16px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 440px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .subject-card {
+      background: #ffffff;
+      padding: 28px 24px;
+      border-radius: 20px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.03);
+      border: 1px solid #e2e8f0;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .subject-title {
+      font-size: 1.35rem;
+      font-weight: 700;
+    }
+
+    .subject-card.biology .subject-title { color: #059669; }
+    .subject-card.chemistry .subject-title { color: #8b5cf6; }
+    .subject-card.physics .subject-title { color: #2563eb; }
+    .subject-card.english .subject-title { color: #ef4444; }
+    .subject-card.gk .subject-title { color: #d97706; }
+
+    .progress-percent {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #16a34a;
+    }
+
+    .chapter-list { list-style: none; }
+
+    .chapter-item {
+      display: flex;
+      align-items: flex-start;
+      margin-bottom: 14px;
+      gap: 12px;
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 6px;
+      outline: none;
+    }
+
+    .chapter-item:focus-visible {
+      background-color: #f1f5f9;
+      box-shadow: 0 0 0 2px #16a34a;
+    }
+
+    .chapter-item:last-child { margin-bottom: 0; }
+
+    .custom-checkbox {
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border: 2px solid #cbd5e1;
+      border-radius: 6px;
+      cursor: pointer;
+      outline: none;
+      transition: all 0.2s ease;
+      position: relative;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .custom-checkbox:checked {
+      background-color: #16a34a;
+      border-color: #16a34a;
+    }
+
+    .custom-checkbox:checked::after {
+      content: '✓';
+      position: absolute;
+      color: white;
+      font-size: 13px;
+      top: -2px;
+      left: 3px;
+      font-weight: bold;
+    }
+
+    .chapter-text {
+      font-size: 1rem;
+      color: #334155;
+      font-weight: 400;
+      user-select: none;
+      line-height: 1.4;
+    }
+
+    .chapter-item.completed .chapter-text {
+      text-decoration: line-through;
+      color: #94a3b8;
+    }
+
+    .back-btn {
+      margin-bottom: 8px;
+      align-self: flex-start;
+      color: #64748b;
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.95rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .back-btn:hover { color: #0f172a; }
+  </style>
+
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+</head>
+<body>
+
+  <div class="container">
+    <a href="index.html" class="back-btn">← Back to Today's Tasks</a>
+
+    <!-- BIOLOGY -->
+    <div class="subject-card biology" data-subject="biology">
+      <div class="card-header">
+        <h2 class="subject-title">Biology 🦠</h2>
+        <span class="progress-percent">0%</span>
+      </div>
+      <ul class="chapter-list">
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="bio_1"><span class="chapter-text">1 Cell</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="bio_2"><span class="chapter-text">2 Division</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="bio_3"><span class="chapter-text">3 Chemistry</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="bio_4"><span class="chapter-text">4 Microbe</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="bio_5"><span class="chapter-text">5 Algae & Fungi</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="bio_6"><span class="chapter-text">6 Bryo/Pteridophytes</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="bio_7"><span class="chapter-text">7 Gymno/Angisperm</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="bio_8"><span class="chapter-text">8 Tissue</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="bio_9"><span class="chapter-text">9 Physiology</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="bio_10"><span class="chapter-text">10 Repro</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="bio_11"><span class="chapter-text">11 Biotech</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="bio_12"><span class="chapter-text">12 Environment</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="bio_13"><span class="chapter-text">13 Class</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="bio_14"><span class="chapter-text">14 Hydra Grasshopper Ruhi</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="bio_15"><span class="chapter-text">15 Digestion</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="bio_16"><span class="chapter-text">16 Blood & CVS</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="bio_17"><span class="chapter-text">17 Respiration</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="bio_18"><span class="chapter-text">18 Renal</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="bio_19"><span class="chapter-text">19 Skeletal System</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="bio_20"><span class="chapter-text">20 CNS</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="bio_21"><span class="chapter-text">21 Repro</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="bio_22"><span class="chapter-text">22 Immunity</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="bio_23"><span class="chapter-text">23 Genetics</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="bio_24"><span class="chapter-text">24 Behavior</span></li>
+      </ul>
+    </div>
+
+    <!-- CHEMISTRY -->
+    <div class="subject-card chemistry" data-subject="chemistry">
+      <div class="card-header">
+        <h2 class="subject-title">Chemistry 🧪</h2>
+        <span class="progress-percent">0%</span>
+      </div>
+      <ul class="chapter-list">
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="chem_1"><span class="chapter-text">1 Safe Use of Laborator</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="chem_2"><span class="chapter-text">2 Qualitative Chemistry</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="chem_3"><span class="chapter-text">3 Periodic Properties of Elements and Chemical Bonding</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="chem_4"><span class="chapter-text">4 Chemical Changes</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="chem_5"><span class="chapter-text">5 Work-oriented Chemistry</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="chem_6"><span class="chapter-text">6 Environmental Chemistry</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="chem_7"><span class="chapter-text">7 Organic Chemistry</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="chem_8"><span class="chapter-text">8 Quantitative Chemistry</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="chem_9"><span class="chapter-text">9 Electrochemistry</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="chem_10"><span class="chapter-text">10 Economic Chemistry</span></li>
+      </ul>
+    </div>
+
+    <!-- PHYSICS -->
+    <div class="subject-card physics" data-subject="physics">
+      <div class="card-header">
+        <h2 class="subject-title">Physics ⚡</h2>
+        <span class="progress-percent">0%</span>
+      </div>
+      <ul class="chapter-list">
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="phy_1"><span class="chapter-text">1 Physical World and Measurement</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="phy_2"><span class="chapter-text">2 Vector</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="phy_3"><span class="chapter-text">3 Dynamics</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="phy_4"><span class="chapter-text">4 Newtonian Mechanics</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="phy_5"><span class="chapter-text">5 Work, Energy and Power</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="phy_6"><span class="chapter-text">6 Gravitation and Gravity</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="phy_7"><span class="chapter-text">7 Structural Properties of Matter</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="phy_8"><span class="chapter-text">8 Periodic Motion</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="phy_9"><span class="chapter-text">9 Waves</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="phy_10"><span class="chapter-text">10 Ideal Gas and Kinetics of Gas</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="phy_11"><span class="chapter-text">11 Thermodynamics</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="phy_12"><span class="chapter-text">12 Static Electricity</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="phy_13"><span class="chapter-text">13 Current Electricity</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="phy_14"><span class="chapter-text">14 Magnetic Effect of Electric Current and Magnetism</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="phy_15"><span class="chapter-text">15 Electromagnetic Induction and Alternating Current</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="phy_16"><span class="chapter-text">16 Geometrical Optics</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="phy_17"><span class="chapter-text">17 Physical Optics</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="phy_18"><span class="chapter-text">18 Introduction to Modern Physics</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="phy_19"><span class="chapter-text">19 Atomic Model and Nuclear Physics</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="phy_20"><span class="chapter-text">20 Semiconductor and Electronics</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="phy_21"><span class="chapter-text">21 Astronomy</span></li>
+      </ul>
+    </div>
+
+    <!-- ENGLISH -->
+    <div class="subject-card english" data-subject="english">
+      <div class="card-header">
+        <h2 class="subject-title">English 📚</h2>
+        <span class="progress-percent">0%</span>
+      </div>
+      <ul class="chapter-list">
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="eng_1"><span class="chapter-text">Noun & Its Classification</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="eng_2"><span class="chapter-text">Noun & Determiners</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="eng_3"><span class="chapter-text">Number</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="eng_4"><span class="chapter-text">Gender</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="eng_5"><span class="chapter-text">Pronoun & Its Classification</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="eng_6"><span class="chapter-text">Uses of Pronoun</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="eng_7"><span class="chapter-text">Adjective & Its Classification</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="eng_8"><span class="chapter-text">Adverb & Its Classification</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="eng_9"><span class="chapter-text">Degree of Comparison</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="eng_10"><span class="chapter-text">Verb & Its Classification</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="eng_11"><span class="chapter-text">Gerund, Participle & Verbal Noun</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="eng_12"><span class="chapter-text">Conjunction Linkers & Interjection</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="eng_13"><span class="chapter-text">Uses of Some Prepositions</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="eng_14"><span class="chapter-text">Identification of Parts of Speech</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="eng_15"><span class="chapter-text">Transformation of Parts of Speech</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="eng_16"><span class="chapter-text">Phrases & Clauses</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="eng_17"><span class="chapter-text">Transformation of Sentence According to Structure</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="eng_18"><span class="chapter-text">Voice</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="eng_19"><span class="chapter-text">Narration</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="eng_20"><span class="chapter-text">Tense and Its Identification</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="eng_21"><span class="chapter-text">Subject-Verb Agreement</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="eng_22"><span class="chapter-text">Conditionals</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="eng_23"><span class="chapter-text">Uses of Modal Auxiliaries</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="eng_24"><span class="chapter-text">Right form of Verb</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="eng_25"><span class="chapter-text">Embedded Question</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="eng_26"><span class="chapter-text">Commonly Misused Words</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="eng_27"><span class="chapter-text">Grammatical Error</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="eng_28"><span class="chapter-text">Sentence Completion</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="eng_29"><span class="chapter-text">Translation</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="eng_30"><span class="chapter-text">Literature</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="eng_31"><span class="chapter-text">Appropriate Preposition</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="eng_32"><span class="chapter-text">Synonym & Antonym</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="eng_33"><span class="chapter-text">Spelling</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="eng_34"><span class="chapter-text">Idioms & Phrases</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="eng_35"><span class="chapter-text">Group Verb / Phrasal Verb</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="eng_36"><span class="chapter-text">Proverbs</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="eng_37"><span class="chapter-text">One Word Substitution</span></li>
+      </ul>
+    </div>
+
+    <!-- GK -->
+    <div class="subject-card gk" data-subject="gk">
+      <div class="card-header">
+        <h2 class="subject-title">General Knowledge 🌐</h2>
+        <span class="progress-percent">0%</span>
+      </div>
+      <ul class="chapter-list">
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="gk_1"><span class="chapter-text">বাংলাদেশ পরিচিতি</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="gk_2"><span class="chapter-text">বাংলাদেশের সম্পদ</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="gk_3"><span class="chapter-text">বাংলাদেশের পানি সম্পদ</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="gk_4"><span class="chapter-text">প্রাচীন ও মধ্যযুগে বাংলার ইতিহাস</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="gk_5"><span class="chapter-text">ইউরোপীয়দের আগমন ও ব্রিটিশ শাসন</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="gk_6"><span class="chapter-text">পাকিস্তান আমলে বাংলাদেশ</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="gk_7"><span class="chapter-text">বাংলাদেশের মুক্তিযুদ্ধ</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="gk_8"><span class="chapter-text">বাংলাদেশের শিক্ষা, স্বাস্থ্য ও জনসংখ্যা</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="gk_9"><span class="chapter-text">বাংলাদেশের অর্থনীতি, শিল্প ও বাণিজ্য</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="gk_10"><span class="chapter-text">বাংলাদেশের সংবিধান ও রাজনৈতিক ব্যবস্থা</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="gk_11"><span class="chapter-text">বিশ্বাঙ্গনে বাংলাদেশ</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="gk_12"><span class="chapter-text">গণমাধ্যম, শিল্প ও সংস্কৃতি</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="gk_13"><span class="chapter-text">বাংলাদেশ সম্পর্কিত অন্যান্য তথ্যাবলি</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="gk_14"><span class="chapter-text">বৈশ্বিক ইতিহাস</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="gk_15"><span class="chapter-text">বিশ্ব পরিচিতি</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="gk_16"><span class="chapter-text">বিশ্বের ভৌগোলিক পরিচিতি</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="gk_17"><span class="chapter-text">আন্তর্জাতিক সংগঠন</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="gk_18"><span class="chapter-text">বিশ্বের উল্লেখযোগ্য অর্থনৈতিক জোট ও আর্থিক প্রতিষ্ঠানসমূহ</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="gk_19"><span class="chapter-text">বৈশ্বিক আঞ্চলিক সংগঠন</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="gk_20"><span class="chapter-text">আন্তর্জাতিক ও আঞ্চলিক রাজনৈতিক সংগঠন</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="gk_21"><span class="chapter-text">আন্তর্জাতিক সেবা ও মানবাধিকার সংস্থা</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="gk_22"><span class="chapter-text">আন্তর্জাতিক পুলিশ, গোয়েন্দা, গেরিলা ও অন্যান্য স্বাধীনতাকামী সংগঠন</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="gk_23"><span class="chapter-text">আন্তর্জাতিক সামরিক জোট, অস্ত্র নিয়ন্ত্রণ সংস্থা ও নিরস্ত্রীকরণ চুক্তি</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="gk_24"><span class="chapter-text">পরিবেশ ইস্যু ও কূটনীতি</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="gk_25"><span class="chapter-text">বিশ্বের অন্যান্য গুরুত্বপূর্ণ বিষয়াবলি</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      databaseURL: "https://todo-list-77a25-default-rtdb.firebaseio.com/"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const subjectsRef = db.ref('subject_progress');
+
+    // LocalStorage cache load for instantaneous startup
+    const cachedSubjects = JSON.parse(localStorage.getItem('cached_subject_progress') || '{}');
+    renderFromData(cachedSubjects);
+
+    function renderFromData(data) {
+      document.querySelectorAll('.subject-card').forEach(card => {
+        const subjectName = card.getAttribute('data-subject');
+        const subjectData = data[subjectName] || {};
+        
+        card.querySelectorAll('.custom-checkbox').forEach(cb => {
+          const chapterId = cb.getAttribute('data-id');
+          cb.checked = !!subjectData[chapterId];
+        });
+
+        updateCardUI(card);
+      });
+    }
+
+    // Real-time synchronization from Firebase
+    subjectsRef.on('value', (snapshot) => {
+      const data = snapshot.val() || {};
+      localStorage.setItem('cached_subject_progress', JSON.stringify(data));
+      renderFromData(data);
+    });
+
+    function saveChapterState(subjectName, chapterId, isChecked) {
+      // LocalStorage update
+      const localData = JSON.parse(localStorage.getItem('cached_subject_progress') || '{}');
+      if (!localData[subjectName]) localData[subjectName] = {};
+      localData[subjectName][chapterId] = isChecked;
+      localStorage.setItem('cached_subject_progress', JSON.stringify(localData));
+
+      // Firebase sync
+      subjectsRef.child(subjectName).child(chapterId).set(isChecked);
+    }
+
+    function updateCardUI(card) {
+      const checkboxes = card.querySelectorAll('.custom-checkbox');
+      const progressText = card.querySelector('.progress-percent');
+      let checkedCount = 0;
+
+      checkboxes.forEach(cb => {
+        const parentLi = cb.parentElement;
+        if (cb.checked) {
+          checkedCount++;
+          parentLi.classList.add('completed');
+        } else {
+          parentLi.classList.remove('completed');
+        }
+      });
+
+      const percentage = checkboxes.length > 0 
+        ? Math.round((checkedCount / checkboxes.length) * 100) 
+        : 0;
+
+      progressText.textContent = `${percentage}%`;
+    }
+
+    function toggleChapterItem(chapterItem, card) {
+      const checkbox = chapterItem.querySelector('.custom-checkbox');
+      const subjectName = card.getAttribute('data-subject');
+      const chapterId = checkbox.getAttribute('data-id');
+
+      checkbox.checked = !checkbox.checked;
+      updateCardUI(card);
+      saveChapterState(subjectName, chapterId, checkbox.checked);
+    }
+
+    // Delegated Click and Keyboard handling
+    document.querySelectorAll('.subject-card').forEach(card => {
+      card.addEventListener('click', (e) => {
+        const chapterItem = e.target.closest('.chapter-item');
+        if (!chapterItem) return;
+
+        if (e.target.classList.contains('custom-checkbox')) {
+          const subjectName = card.getAttribute('data-subject');
+          const chapterId = e.target.getAttribute('data-id');
+          updateCardUI(card);
+          saveChapterState(subjectName, chapterId, e.target.checked);
+        } else {
+          toggleChapterItem(chapterItem, card);
+        }
+      });
+
+      card.addEventListener('keydown', (e) => {
+        if (e.key === ' ' || e.key === 'Enter') {
+          const chapterItem = e.target.closest('.chapter-item');
+          if (chapterItem) {
+            e.preventDefault();
+            toggleChapterItem(chapterItem, card);
+          }
+        }
+      });
+    });
+  </script>
+</body>
+</html>
