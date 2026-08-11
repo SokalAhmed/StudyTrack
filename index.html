@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.json">
   <title>Study Planner</title>
+  <link rel="manifest" href="manifest.json">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
@@ -105,7 +105,6 @@
       min-height: 48px;
     }
 
-    /* Fixed double-animation glitch on empty state */
     .empty-state {
       color: #94a3b8;
       font-size: 0.9rem;
@@ -131,25 +130,13 @@
     }
 
     @keyframes taskFadeIn {
-      0% {
-        opacity: 0;
-        transform: translateY(-8px) scale(0.96);
-      }
-      100% {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-      }
+      0% { opacity: 0; transform: translateY(-8px) scale(0.96); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
     }
 
     @keyframes taskFadeOut {
-      0% {
-        opacity: 1;
-        transform: scale(1);
-      }
-      100% {
-        opacity: 0;
-        transform: scale(0.92);
-      }
+      0% { opacity: 1; transform: scale(1); }
+      100% { opacity: 0; transform: scale(0.92); }
     }
 
     .task-item.fade-in {
@@ -246,21 +233,11 @@
       border-radius: 8px;
     }
 
-    .task-item:hover .delete-btn { 
-      opacity: 1; 
-      transform: scale(1);
-    }
-    
-    .delete-btn:hover { 
-      color: #ef4444; 
-      background: #fef2f2;
-    }
+    .task-item:hover .delete-btn { opacity: 1; transform: scale(1); }
+    .delete-btn:hover { color: #ef4444; background: #fef2f2; }
 
     @media (hover: none) {
-      .delete-btn {
-        opacity: 0.8;
-        transform: scale(1);
-      }
+      .delete-btn { opacity: 0.8; transform: scale(1); }
     }
 
     .add-container { margin-top: 18px; }
@@ -393,7 +370,6 @@
   let lastAddedKey = null;
   let isDragging = false;
   let deletingKeys = new Set();
-
   let tasks = {};
 
   function loadLocalCache() {
@@ -408,16 +384,27 @@
     localStorage.setItem('cached_tasks', JSON.stringify(tasks));
   }
 
-  // Cross-tab synchronization
   window.addEventListener('storage', (e) => {
     if (e.key === 'cached_tasks') {
       loadLocalCache();
       renderTasks();
     }
+    if (e.key === 'cached_subject_progress') {
+      try {
+        const cachedSubjectData = JSON.parse(e.newValue || '{}');
+        processSubjectProgress(cachedSubjectData);
+      } catch (err) {}
+    }
   });
 
   loadLocalCache();
   renderTasks();
+
+  // Load initial progress offline using local cache fallback immediately
+  try {
+    const initialCachedSubjectData = JSON.parse(localStorage.getItem('cached_subject_progress') || '{}');
+    processSubjectProgress(initialCachedSubjectData);
+  } catch (e) {}
 
   tasksRef.on('value', (snapshot) => {
     const val = snapshot.val() || {};
@@ -431,11 +418,12 @@
 
   subjectsRef.on('value', (snapshot) => {
     const data = snapshot.val();
-    if (!data) {
-      animateProgressTo(0);
-      return;
-    }
+    if (!data) return;
+    localStorage.setItem('cached_subject_progress', JSON.stringify(data));
+    processSubjectProgress(data);
+  });
 
+  function processSubjectProgress(data) {
     let checkedCount = 0;
     Object.values(data).forEach(subjectObj => {
       if (subjectObj && typeof subjectObj === 'object') {
@@ -447,7 +435,7 @@
 
     const targetPercentage = Math.round((checkedCount / TOTAL_CHAPTERS_ALL_SUBJECTS) * 100);
     animateProgressTo(targetPercentage);
-  });
+  }
 
   function animateProgressTo(targetPercent) {
     if (animationFrameId) cancelAnimationFrame(animationFrameId);
@@ -566,7 +554,6 @@
     }
   }
 
-  // Calculate midpoints to eliminate race conditions when reordering
   function calculateNewOrder(domList, newIndex) {
     const items = domList.querySelectorAll('.task-item');
     const draggedKey = items[newIndex].dataset.key;
@@ -642,21 +629,17 @@
       .replace(/"/g, "&quot;")
       .replace(/'/g, "&#039;");
   }
-</script>
-  <script>
+
+  // Service Worker Registration
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js')
-        .then((reg) => {
-          console.log('Service Worker registered successfully:', reg.scope);
-        })
-        .catch((err) => {
-          console.log('Service Worker registration failed:', err);
-        });
+      navigator.serviceWorker.register('sw.js').catch((err) => {
+        console.log('SW registration failed:', err);
+      });
     });
   }
-  </script>
-  
+</script>
 
 </body>
-</html>
+  </html>
+  
