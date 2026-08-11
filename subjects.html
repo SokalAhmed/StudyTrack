@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.json">
   <title>Subject Topics</title>
+  <link rel="manifest" href="manifest.json">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -192,7 +192,7 @@
         <span class="progress-percent">0%</span>
       </div>
       <ul class="chapter-list">
-        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="chem_1"><span class="chapter-text">1 Safe Use of Laborator</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="chem_1"><span class="chapter-text">1 Safe Use of Laboratory</span></li>
         <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="chem_2"><span class="chapter-text">2 Qualitative Chemistry</span></li>
         <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="chem_3"><span class="chapter-text">3 Periodic Properties of Elements and Chemical Bonding</span></li>
         <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="chem_4"><span class="chapter-text">4 Chemical Changes</span></li>
@@ -277,7 +277,7 @@
         <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="eng_32"><span class="chapter-text">Synonym & Antonym</span></li>
         <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="eng_33"><span class="chapter-text">Spelling</span></li>
         <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="eng_34"><span class="chapter-text">Idioms & Phrases</span></li>
-        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="eng_35"><span class="chapter-text">Group Verb / Phrasal Verb</span></li>
+        <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="eng_35"><span class="chapter-text">Group Verb / Phrasal Verb</span>
         <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="eng_36"><span class="chapter-text">Proverbs</span></li>
         <li class="chapter-item" tabindex="0"><input type="checkbox" class="custom-checkbox" data-id="eng_37"><span class="chapter-text">One Word Substitution</span></li>
       </ul>
@@ -327,7 +327,6 @@
     const db = firebase.database();
     const subjectsRef = db.ref('subject_progress');
 
-    // LocalStorage cache load for instantaneous startup
     const cachedSubjects = JSON.parse(localStorage.getItem('cached_subject_progress') || '{}');
     renderFromData(cachedSubjects);
 
@@ -345,7 +344,6 @@
       });
     }
 
-    // Real-time synchronization from Firebase
     subjectsRef.on('value', (snapshot) => {
       const data = snapshot.val() || {};
       localStorage.setItem('cached_subject_progress', JSON.stringify(data));
@@ -353,13 +351,11 @@
     });
 
     function saveChapterState(subjectName, chapterId, isChecked) {
-      // LocalStorage update
       const localData = JSON.parse(localStorage.getItem('cached_subject_progress') || '{}');
       if (!localData[subjectName]) localData[subjectName] = {};
       localData[subjectName][chapterId] = isChecked;
       localStorage.setItem('cached_subject_progress', JSON.stringify(localData));
 
-      // Firebase sync
       subjectsRef.child(subjectName).child(chapterId).set(isChecked);
     }
 
@@ -395,7 +391,6 @@
       saveChapterState(subjectName, chapterId, checkbox.checked);
     }
 
-    // Delegated Click and Keyboard handling
     document.querySelectorAll('.subject-card').forEach(card => {
       card.addEventListener('click', (e) => {
         const chapterItem = e.target.closest('.chapter-item');
@@ -421,20 +416,15 @@
         }
       });
     });
-  </script>
-  <script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js')
-        .then((reg) => {
-          console.log('Service Worker registered successfully:', reg.scope);
-        })
-        .catch((err) => {
-          console.log('Service Worker registration failed:', err);
+
+    // Service Worker Registration
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').catch((err) => {
+          console.log('SW registration failed:', err);
         });
-    });
-  }
+      });
+    }
   </script>
-  
 </body>
 </html>
