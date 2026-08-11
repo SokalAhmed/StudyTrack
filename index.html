@@ -3,26 +3,27 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Today's Topic</title>
+  <title>Study Planner</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
   
   <style>
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
     }
 
     body {
-      background-color: #f4f5f7;
+      background-color: #f8fafc;
       display: flex;
       justify-content: center;
       align-items: center;
       min-height: 100vh;
-      padding: 20px;
+      padding: 32px 20px;
+      color: #0f172a;
     }
 
     .main-wrapper {
@@ -31,24 +32,23 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+      gap: 22px;
     }
 
-    /* Top Countdown Header Block */
     .countdown-card {
       background: #ffffff;
       width: 100%;
       padding: 24px 20px;
-      border-radius: 24px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
-      border: 1px solid #e1e4e8;
+      border-radius: 28px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.03), 0 1px 3px rgba(0, 0, 0, 0.02);
+      border: 1px solid #f1f5f9;
       text-align: center;
-      margin-bottom: 20px;
     }
 
     .days-count {
       font-size: 3.2rem;
       font-weight: 800;
-      color: #ef4444; /* Material Light Red */
+      color: #ef4444;
       line-height: 1;
       letter-spacing: -0.03em;
       text-shadow: 0 4px 12px rgba(239, 68, 68, 0.12);
@@ -58,62 +58,153 @@
       margin-top: 6px;
       font-size: 0.88rem;
       font-weight: 600;
-      color: #64748b; /* Slate Gray */
+      color: #64748b;
       letter-spacing: 0.01em;
     }
 
-    /* Minimalist Task Card Container */
     .card {
       background: #ffffff;
       width: 100%;
-      padding: 36px 32px;
-      border-radius: 24px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
-      transition: background-color 0.4s ease, border-color 0.4s ease;
-      border: 1px solid #e1e4e8;
+      padding: 30px 26px;
+      border-radius: 28px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.03), 0 1px 3px rgba(0, 0, 0, 0.02);
+      transition: background-color 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
+      border: 1px solid #f1f5f9;
+    }
+
+    .card-header-wrapper {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 22px;
     }
 
     h1 {
-      font-size: 1.5rem;
-      font-weight: 600;
-      color: #111111;
-      margin-bottom: 24px;
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: #0f172a;
+      letter-spacing: -0.02em;
       transition: color 0.3s ease;
     }
 
-    ul { list-style: none; }
+    .task-badge {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #475569;
+      background: #f1f5f9;
+      padding: 5px 12px;
+      border-radius: 20px;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
 
+    ul { 
+      list-style: none; 
+      display: flex;
+      flex-direction: column;
+      min-height: 48px;
+    }
+
+    /* Fixed double-animation glitch on empty state */
     .empty-state {
+      color: #94a3b8;
+      font-size: 0.9rem;
       text-align: center;
-      color: #a1a1aa;
-      font-size: 0.95rem;
-      padding: 8px 0 18px 0;
-      font-style: italic;
+      padding: 16px 0;
+      user-select: none;
     }
 
     .task-item {
       display: flex;
       align-items: center;
-      margin-bottom: 18px;
-      gap: 14px;
+      margin-bottom: 14px;
+      gap: 12px;
+      padding: 6px 8px;
+      border-radius: 12px;
+      background: #ffffff;
+      transition: background-color 0.2s ease, opacity 0.2s ease;
+    }
+
+    .task-item.sortable-chosen,
+    .task-item.sortable-drag {
+      transition: none !important;
+    }
+
+    @keyframes taskFadeIn {
+      0% {
+        opacity: 0;
+        transform: translateY(-8px) scale(0.96);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    @keyframes taskFadeOut {
+      0% {
+        opacity: 1;
+        transform: scale(1);
+      }
+      100% {
+        opacity: 0;
+        transform: scale(0.92);
+      }
+    }
+
+    .task-item.fade-in {
+      animation: taskFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .task-item.fade-out {
+      animation: taskFadeOut 0.25s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+      transition: height 0.25s ease, margin 0.25s ease, padding 0.25s ease, opacity 0.25s ease !important;
+      opacity: 0;
+      height: 0px !important;
+      padding-top: 0px !important;
+      padding-bottom: 0px !important;
+      margin-bottom: 0px !important;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .drag-handle {
+      cursor: grab;
+      color: #cbd5e1;
+      font-size: 1.1rem;
+      user-select: none;
+      padding: 0 2px;
+      transition: color 0.2s ease;
+      touch-action: none;
+    }
+
+    .task-item:hover .drag-handle { color: #94a3b8; }
+    .drag-handle:active { cursor: grabbing; }
+
+    .sortable-ghost {
+      opacity: 0.3;
+      background: #f1f5f9;
     }
 
     .custom-checkbox {
       appearance: none;
-      width: 22px;
-      height: 22px;
-      border: 2px solid #a4a9bd;
-      border-radius: 6px;
+      width: 24px;
+      height: 24px;
+      border: 2px solid #cbd5e1;
+      border-radius: 8px;
       cursor: pointer;
       outline: none;
-      transition: all 0.2s ease;
+      transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
       position: relative;
       flex-shrink: 0;
+      background-color: #ffffff;
     }
 
+    .custom-checkbox:hover { border-color: #94a3b8; }
+
     .custom-checkbox:checked {
-      background-color: #16a34a;
-      border-color: #16a34a;
+      background-color: #10b981;
+      border-color: #10b981;
+      box-shadow: 0 4px 10px rgba(16, 185, 129, 0.25);
     }
 
     .custom-checkbox:checked::after {
@@ -121,34 +212,37 @@
       position: absolute;
       color: white;
       font-size: 14px;
-      top: -2px;
-      left: 3px;
+      top: -1px;
+      left: 4px;
       font-weight: bold;
     }
 
     .task-text {
       flex: 1;
-      font-size: 1.0rem;
-      color: #1a1a1a;
+      font-size: 1rem;
+      font-weight: 500;
+      color: #1e293b;
       word-break: break-word;
       user-select: none;
+      transition: color 0.2s ease;
     }
 
     .task-item.completed .task-text {
       text-decoration: line-through;
-      color: #71717a;
+      color: #94a3b8;
     }
 
     .delete-btn {
-      background: none;
+      background: transparent;
       border: none;
-      color: #a1a1aa;
+      color: #cbd5e1;
       cursor: pointer;
       font-size: 1rem;
       opacity: 0;
-      transform: scale(0.85);
-      transition: opacity 0.2s ease, color 0.2s ease, transform 0.2s ease;
-      padding: 2px 6px;
+      transform: scale(0.9);
+      transition: color 0.2s ease, background-color 0.2s ease, opacity 0.2s ease, transform 0.2s ease;
+      padding: 6px 10px;
+      border-radius: 8px;
     }
 
     .task-item:hover .delete-btn { 
@@ -156,45 +250,59 @@
       transform: scale(1);
     }
     
-    .delete-btn:hover { color: #ef4444; }
+    .delete-btn:hover { 
+      color: #ef4444; 
+      background: #fef2f2;
+    }
 
     @media (hover: none) {
       .delete-btn {
-        opacity: 0.6;
+        opacity: 0.8;
         transform: scale(1);
       }
     }
 
-    .add-container { margin-top: 12px; }
+    .add-container { margin-top: 18px; }
 
-    #newTaskInput {
+    .new-task-input {
       width: 100%;
-      border: none;
+      border: 1.5px solid #f1f5f9;
       outline: none;
-      background: transparent;
-      font-size: 1rem;
-      color: #71717a;
-      padding: 6px 0;
+      background: #f8fafc;
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: #0f172a;
+      padding: 12px 16px;
+      border-radius: 16px;
+      transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
     }
 
-    #newTaskInput::placeholder { color: #a1a1aa; }
+    .new-task-input:focus {
+      background: #ffffff;
+      border-color: #cbd5e1;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+    }
 
-    /* Green completion state */
+    .new-task-input::placeholder { color: #94a3b8; }
+
     .card.all-completed {
-      background-color: #dcfce7;
-      border-color: #86efac;
+      background-color: #f0fdf4;
+      border-color: #bbf7d0;
+      box-shadow: 0 20px 40px rgba(22, 163, 74, 0.05);
     }
 
     .card.all-completed h1 { color: #15803d; }
+    .card.all-completed .task-badge {
+      background: #dcfce7;
+      color: #15803d;
+    }
 
-    /* Button linking to Subject Progress with Dynamic Fill */
     .progress-btn {
-      margin-top: 24px;
       width: 100%;
       padding: 18px 20px;
       background-color: #ffffff;
       color: #15803d;
-      border: 1.5px solid #86efac;
+      border: 1.5px solid #bbf7d0;
       border-radius: 20px;
       font-size: 1.05rem;
       font-weight: 600;
@@ -205,8 +313,7 @@
       display: block;
       position: relative;
       overflow: hidden;
-
-      background-image: linear-gradient(to right, #bbf7d0 var(--progress-fill, 0%), #ffffff var(--progress-fill, 0%));
+      background-image: linear-gradient(to right, #dcfce7 var(--progress-fill, 0%), #ffffff var(--progress-fill, 0%));
     }
 
     .progress-btn:hover {
@@ -217,36 +324,35 @@
 
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
 </head>
 <body>
 
   <div class="main-wrapper">
-
-    <!-- Top Countdown Block -->
     <div class="countdown-card">
       <div class="days-count" id="daysCountDisplay">--</div>
       <div class="days-label" id="daysLabelDisplay">Days to achieve 50%</div>
     </div>
 
-    <!-- Daily Task Card -->
     <div class="card" id="taskCard">
-      <h1 id="cardHeader">Today's Topic</h1>
-      <ul id="taskList"></ul>
-      <div class="add-container">
-        <input type="text" id="newTaskInput" placeholder="+ Add new task..." />
+      <div class="card-header-wrapper">
+        <h1 id="cardHeader">Today's Topic</h1>
+        <span class="task-badge" id="taskBadge">0/0</span>
       </div>
+      <ul id="taskList"></ul>
+      <form class="add-container" onsubmit="event.preventDefault(); addTask();">
+        <input type="text" class="new-task-input" id="newTaskInput" placeholder="+ Add new task..." autocomplete="off" />
+      </form>
     </div>
 
-    <!-- Overall Progress Button -->
     <a href="subjects.html" class="progress-btn" id="overallProgressBtn">
       Overall Progress 0%
     </a>
   </div>
 
 <script>
-  // Dynamic Countdown Target Configuration
-  const TARGET_DATE = new Date("2026-09-15T00:00:00"); // Set your target deadline
-  const TARGET_PERCENTAGE = 50; // Set your target percentage (n%)
+  const TARGET_DATE = new Date("2026-09-15T00:00:00");
+  const TARGET_PERCENTAGE = 50;
 
   function calculateDaysLeft() {
     const now = new Date();
@@ -263,7 +369,6 @@
 
   updateCountdownHeader();
 
-  // Firebase Setup
   const firebaseConfig = {
     databaseURL: "https://todo-list-77a25-default-rtdb.firebaseio.com/"
   };
@@ -275,6 +380,7 @@
 
   const taskCard = document.getElementById('taskCard');
   const cardHeader = document.getElementById('cardHeader');
+  const taskBadge = document.getElementById('taskBadge');
   const taskList = document.getElementById('taskList');
   const newTaskInput = document.getElementById('newTaskInput');
   const overallProgressBtn = document.getElementById('overallProgressBtn');
@@ -283,20 +389,45 @@
 
   let currentPercentage = 0;
   let animationFrameId = null;
+  let lastAddedKey = null;
+  let isDragging = false;
+  let deletingKeys = new Set();
 
-  // LocalStorage instant task load
-  let tasks = JSON.parse(localStorage.getItem('cached_tasks') || '[]');
-  renderTasks();
+  let tasks = {};
 
-  // Sync daily tasks from Firebase
-  tasksRef.on('value', (snapshot) => {
-    const data = snapshot.val();
-    tasks = data ? Object.values(data) : [];
+  function loadLocalCache() {
+    try {
+      tasks = JSON.parse(localStorage.getItem('cached_tasks') || '{}');
+    } catch (e) {
+      tasks = {};
+    }
+  }
+
+  function updateLocalCache() {
     localStorage.setItem('cached_tasks', JSON.stringify(tasks));
-    renderTasks();
+  }
+
+  // Cross-tab synchronization
+  window.addEventListener('storage', (e) => {
+    if (e.key === 'cached_tasks') {
+      loadLocalCache();
+      renderTasks();
+    }
   });
 
-  // Calculate Overall Progress & Trigger Smooth Animation
+  loadLocalCache();
+  renderTasks();
+
+  tasksRef.on('value', (snapshot) => {
+    const val = snapshot.val() || {};
+    deletingKeys.forEach(k => delete val[k]);
+    tasks = val;
+    updateLocalCache();
+    if (!isDragging) {
+      renderTasks();
+    }
+  });
+
   subjectsRef.on('value', (snapshot) => {
     const data = snapshot.val();
     if (!data) {
@@ -305,13 +436,10 @@
     }
 
     let checkedCount = 0;
-
     Object.values(data).forEach(subjectObj => {
       if (subjectObj && typeof subjectObj === 'object') {
         Object.values(subjectObj).forEach(isChecked => {
-          if (isChecked === true) {
-            checkedCount++;
-          }
+          if (isChecked === true) checkedCount++;
         });
       }
     });
@@ -320,18 +448,16 @@
     animateProgressTo(targetPercentage);
   });
 
-  // Smooth JS animation function for percentage text and fill width
   function animateProgressTo(targetPercent) {
     if (animationFrameId) cancelAnimationFrame(animationFrameId);
 
     const startPercent = currentPercentage;
-    const duration = 800; // Smooth 0.8s transition
+    const duration = 800;
     const startTime = performance.now();
 
     function updateFrame(currentTime) {
       const elapsed = currentTime - startTime;
       const progress = Math.min(elapsed / duration, 1);
-      
       const easeProgress = 1 - Math.pow(1 - progress, 3);
       
       const interpolatedValue = startPercent + (targetPercent - startPercent) * easeProgress;
@@ -350,53 +476,154 @@
     animationFrameId = requestAnimationFrame(updateFrame);
   }
 
-  function saveToCloud() { 
-    localStorage.setItem('cached_tasks', JSON.stringify(tasks));
-    tasksRef.set(tasks); 
+  function getSortedKeys(taskMap) {
+    return Object.keys(taskMap).sort((a, b) => {
+      const orderA = taskMap[a].order ?? 0;
+      const orderB = taskMap[b].order ?? 0;
+      return orderA - orderB;
+    });
   }
 
   function renderTasks() {
     taskList.innerHTML = '';
+    const sortedKeys = getSortedKeys(tasks);
 
-    if (tasks.length === 0) {
-      taskList.innerHTML = '<li class="empty-state">No targets added yet</li>';
+    if (sortedKeys.length === 0) {
+      const emptyLi = document.createElement('li');
+      emptyLi.className = 'empty-state';
+      emptyLi.textContent = 'No targets added yet';
+      taskList.appendChild(emptyLi);
     } else {
-      tasks.forEach((task, index) => {
+      sortedKeys.forEach((key) => {
+        const task = tasks[key];
         const li = document.createElement('li');
-        li.className = `task-item ${task.completed ? 'completed' : ''}`;
-        
+        const isNew = key === lastAddedKey;
+        li.className = `task-item ${task.completed ? 'completed' : ''} ${isNew ? 'fade-in' : ''}`;
+        li.dataset.key = key;
         li.innerHTML = `
-          <input type="checkbox" class="custom-checkbox" ${task.completed ? 'checked' : ''} onchange="toggleTask(${index})" />
+          <span class="drag-handle">⋮⋮</span>
+          <input type="checkbox" class="custom-checkbox" ${task.completed ? 'checked' : ''} onchange="toggleTask('${key}')" />
           <span class="task-text">${escapeHtml(task.text)}</span>
-          <button class="delete-btn" onclick="deleteTask(${index})" aria-label="Delete task">✕</button>
+          <button class="delete-btn" onclick="deleteTask('${key}')" aria-label="Delete task">✕</button>
         `;
         taskList.appendChild(li);
       });
     }
-    
-    checkCompletionState();
+
+    setTimeout(() => { lastAddedKey = null; }, 350);
+    updateCardState();
   }
 
-  function toggleTask(index) {
-    tasks[index].completed = !tasks[index].completed;
-    saveToCloud();
-  }
-
-  function deleteTask(index) {
-    tasks.splice(index, 1);
-    saveToCloud();
-  }
-
-  newTaskInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter' && newTaskInput.value.trim() !== '') {
-      tasks.push({ id: Date.now(), text: newTaskInput.value.trim(), completed: false });
+  function addTask() {
+    const value = newTaskInput.value.trim();
+    if (value !== '') {
       newTaskInput.value = '';
-      saveToCloud();
+      const newRef = tasksRef.push();
+      const newTask = { text: value, completed: false, order: Date.now() };
+
+      lastAddedKey = newRef.key;
+      tasks[newRef.key] = newTask;
+      renderTasks();
+      updateLocalCache();
+
+      newRef.set(newTask);
+    }
+  }
+
+  function toggleTask(key) {
+    if (tasks[key]) {
+      const newStatus = !tasks[key].completed;
+      tasks[key].completed = newStatus;
+      renderTasks();
+      updateLocalCache();
+
+      tasksRef.child(key).update({ completed: newStatus });
+    }
+  }
+
+  function deleteTask(key) {
+    if (tasks[key]) {
+      deletingKeys.add(key);
+      const itemEl = taskList.querySelector(`[data-key="${key}"]`);
+      
+      const removeTaskFromState = () => {
+        delete tasks[key];
+        deletingKeys.delete(key);
+        renderTasks();
+        updateLocalCache();
+        tasksRef.child(key).remove();
+      };
+
+      if (itemEl) {
+        itemEl.style.height = `${itemEl.offsetHeight}px`;
+        void itemEl.offsetWidth;
+        itemEl.classList.add('fade-out');
+        setTimeout(removeTaskFromState, 250);
+      } else {
+        removeTaskFromState();
+      }
+    }
+  }
+
+  // Calculate midpoints to eliminate race conditions when reordering
+  function calculateNewOrder(domList, newIndex) {
+    const items = domList.querySelectorAll('.task-item');
+    const draggedKey = items[newIndex].dataset.key;
+    
+    let prevOrder, nextOrder;
+
+    if (newIndex === 0) {
+      const nextKey = items[1]?.dataset.key;
+      nextOrder = nextKey ? tasks[nextKey]?.order ?? Date.now() : Date.now();
+      prevOrder = nextOrder - 10000;
+    } else if (newIndex === items.length - 1) {
+      const prevKey = items[items.length - 2]?.dataset.key;
+      prevOrder = prevKey ? tasks[prevKey]?.order ?? Date.now() : Date.now();
+      nextOrder = prevOrder + 10000;
+    } else {
+      const prevKey = items[newIndex - 1]?.dataset.key;
+      const nextKey = items[newIndex + 1]?.dataset.key;
+      prevOrder = tasks[prevKey]?.order ?? Date.now();
+      nextOrder = tasks[nextKey]?.order ?? Date.now();
+    }
+
+    return { draggedKey, newOrder: (prevOrder + nextOrder) / 2 };
+  }
+
+  new Sortable(taskList, {
+    handle: '.drag-handle',
+    animation: 150,
+    ghostClass: 'sortable-ghost',
+    forceFallback: true,
+    fallbackTolerance: 3,
+    onStart: function () {
+      isDragging = true;
+    },
+    onEnd: function (evt) {
+      if (evt.oldIndex !== evt.newIndex) {
+        const { draggedKey, newOrder } = calculateNewOrder(taskList, evt.newIndex);
+        if (tasks[draggedKey]) {
+          tasks[draggedKey].order = newOrder;
+          updateLocalCache();
+          tasksRef.child(`${draggedKey}/order`).set(newOrder).finally(() => {
+            setTimeout(() => { isDragging = false; }, 150);
+          });
+        } else {
+          isDragging = false;
+        }
+      } else {
+        isDragging = false;
+      }
     }
   });
 
-  function checkCompletionState() {
-    const allDone = tasks.length > 0 && tasks.every(t => t.completed);
+  function updateCardState() {
+    const taskValues = Object.values(tasks);
+    const total = taskValues.length;
+    const completedCount = taskValues.filter(t => t.completed).length;
+    taskBadge.textContent = `${completedCount}/${total}`;
+
+    const allDone = total > 0 && completedCount === total;
     if (allDone) {
       taskCard.classList.add('all-completed');
       cardHeader.textContent = 'Good job 🎉';
@@ -407,7 +634,7 @@
   }
 
   function escapeHtml(text) {
-    return String(text)
+    return String(text || '')
       .replace(/&/g, "&amp;")
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;")
