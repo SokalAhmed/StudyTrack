@@ -319,12 +319,17 @@
     </div>
   </div>
 
-  <script>
+    <script>
     const firebaseConfig = {
       databaseURL: "https://todo-list-77a25-default-rtdb.firebaseio.com/"
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
+    
+    try {
+      db.ref().keepSynced(true);
+    } catch (e) {}
+
     const subjectsRef = db.ref('subject_progress');
 
     const cachedSubjects = JSON.parse(localStorage.getItem('cached_subject_progress') || '{}');
@@ -346,8 +351,13 @@
 
     subjectsRef.on('value', (snapshot) => {
       const data = snapshot.val() || {};
-      localStorage.setItem('cached_subject_progress', JSON.stringify(data));
-      renderFromData(data);
+      if (Object.keys(data).length === 0 && !navigator.onLine) return;
+      
+      const localData = JSON.parse(localStorage.getItem('cached_subject_progress') || '{}');
+      const mergedData = { ...localData, ...data };
+      
+      localStorage.setItem('cached_subject_progress', JSON.stringify(mergedData));
+      renderFromData(mergedData);
     });
 
     function saveChapterState(subjectName, chapterId, isChecked) {
@@ -417,7 +427,6 @@
       });
     });
 
-    // Service Worker Registration
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('sw.js').catch((err) => {
@@ -425,6 +434,7 @@
         });
       });
     }
-  </script>
+    </script>
+  
 </body>
 </html>
