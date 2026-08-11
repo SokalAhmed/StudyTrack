@@ -353,6 +353,11 @@
   firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
   
+  // Enable offline persistence support for Firebase Realtime Database
+  try {
+    db.ref().keepSynced(true);
+  } catch (e) {}
+
   const tasksRef = db.ref('tasks');
   const subjectsRef = db.ref('subject_progress');
 
@@ -400,16 +405,25 @@
   loadLocalCache();
   renderTasks();
 
-  // Load initial progress offline using local cache fallback immediately
   try {
     const initialCachedSubjectData = JSON.parse(localStorage.getItem('cached_subject_progress') || '{}');
     processSubjectProgress(initialCachedSubjectData);
   } catch (e) {}
 
+  // Safe listener: Prevent empty remote states from clearing local tasks while offline or reconnecting
   tasksRef.on('value', (snapshot) => {
     const val = snapshot.val() || {};
+    
+    if (Object.keys(val).length === 0 && Object.keys(tasks).length > 0 && !navigator.onLine) {
+      return;
+    }
+
     deletingKeys.forEach(k => delete val[k]);
-    tasks = val;
+    
+    // Merge remote and local states gracefully so local offline changes aren't lost
+    tasks = { ...tasks, ...val };
+    deletingKeys.forEach(k => delete tasks[k]);
+    
     updateLocalCache();
     if (!isDragging) {
       renderTasks();
@@ -485,6 +499,7 @@
     } else {
       sortedKeys.forEach((key) => {
         const task = tasks[key];
+        if (!task) return;
         const li = document.createElement('li');
         const isNew = key === lastAddedKey;
         li.className = `task-item ${task.completed ? 'completed' : ''} ${isNew ? 'fade-in' : ''}`;
@@ -608,7 +623,7 @@
   function updateCardState() {
     const taskValues = Object.values(tasks);
     const total = taskValues.length;
-    const completedCount = taskValues.filter(t => t.completed).length;
+    const completedCount = taskValues.filter(t => t && t.completed).length;
     taskBadge.textContent = `${completedCount}/${total}`;
 
     const allDone = total > 0 && completedCount === total;
@@ -630,7 +645,6 @@
       .replace(/'/g, "&#039;");
   }
 
-  // Service Worker Registration
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('sw.js').catch((err) => {
@@ -638,6 +652,8 @@
       });
     });
   }
+      </script>
+  
 </script>
 
 </body>
